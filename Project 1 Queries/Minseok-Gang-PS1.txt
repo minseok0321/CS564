@@ -1,0 +1,286 @@
+<?xml version="1.0"?>
+<pset>
+
+    <!--
+        CS 564, FALL 2020
+        PROBLEM SET 1 SUBMISSION TEMPLATE
+
+        Please copy and paste your SQL queries into the appropriate spots below. 
+
+        When submitting SQL queries, please do not include the initial 
+        %sql or %%sql IPython commands. Just include the SQL code.
+
+        DO NOT DELETE THE <![CDATA[ ... ]]> LINES IN EACH <answer> TAG!
+        Doing so will break the autograder. To avoid accidentally breaking
+        something, please leave all existing comments in this template
+        intact in your submission.
+    -->
+
+    <student>
+        <name>
+            <!-- Insert your full name on the line below. -->
+	Min Seok Gang
+            
+        </name>
+        <netid>
+            <!-- Insert your NetID (NOT your student ID number!) below. -->
+	gang3
+
+        </netid>
+        <studentid>
+            <!-- Insert your student ID number below. -->
+	9074016560
+
+        </studentid>
+    </student>
+
+
+    <!-- BEGIN PROBLEM 1 -->
+    <answer number="1a">
+        <!-- Paste your solution to problem 1, part (a) below this line. --><![CDATA[
+	SELECT A.j AS "i", A.i AS "j", A.val
+	FROM A
+	ORDER BY i, j;	
+
+        ]]><!-- End problem 1, part (a). -->
+    </answer>
+    <answer number="1b">
+        <!-- Paste your solution to problem 1, part (b) below this line. --><![CDATA[
+	SELECT SUM((A.val * B.val))
+	FROM A, B
+	WHERE A.j = 2 AND B.j = 1 AND A.i = B.i
+
+
+        ]]><!-- End problem 1, part (b). -->
+    </answer>
+    <answer number="1c">
+        <!-- Paste your solution to problem 1, part (c) below this line. --><![CDATA[
+	SELECT A.i,B.j, SUM(A.val * B.val) AS "val"
+	FROM A
+	INNER JOIN B
+	ON A.j = B.i
+	GROUP BY A.i, B.j;
+
+        ]]><!-- End problem 1, part (c). -->
+    </answer>
+    <answer number="1d">
+        <!-- Paste your solution to problem 1, part (d) below this line. --><![CDATA[
+	SELECT b1.i, b2.j, SUM(b1.val * b2.val) AS "val"
+	FROM B b1
+	JOIN (SELECT temp1.i, temp2.j, SUM(temp1.val * temp2.val) AS val
+     		FROM B AS temp1
+     		JOIN B AS temp2
+     		ON temp1.j = temp2.i
+     		GROUP BY temp1.i, temp2.j) AS b2
+	ON b1.j = b2.i
+	GROUP BY b1.i, b2.j
+
+
+        ]]><!-- End problem 1, part (d). -->
+    </answer>
+    <!-- END PROBLEM 1 -->
+
+
+    <!-- BEGIN PROBLEM 2 -->
+    <answer number="2a">
+        <!-- Paste your solution to problem 2, part (a) below this line. --><![CDATA[
+	SELECT ans.Store, ROUND(MAX(ans.total),2) AS "AllSales"
+	FROM(SELECT s.Store, SUM(s.WeeklySales) AS "total"
+		FROM Sales s
+		WHERE s.WeekDate IN (SELECT h.Weekdate
+    			FROM Holidays h
+    			WHERE h.IsHoliday = "TRUE")
+	GROUP BY s.Store) AS "ans"
+
+	UNION
+
+	SELECT ans.Store, ROUND(MIN(ans.total),2)
+	FROM(SELECT s.Store, SUM(s.WeeklySales) AS "total"
+		FROM Sales s
+		WHERE s.WeekDate IN (SELECT h.Weekdate
+    			FROM Holidays h
+    			WHERE h.IsHoliday = "TRUE")
+	GROUP BY s.Store) AS "ans";
+
+
+        ]]><!-- End problem 2, part (a). -->
+    </answer>
+    <answer number="2b">
+        <!-- Paste your solution to problem 2, part (b) below this line. --><![CDATA[
+	WITH avrgHoli(sales) AS (SELECT SUM(s2.WeeklySales)
+                    FROM Sales s2, Holidays h
+                    WHERE s2.WeekDate = h.WeekDate AND h.IsHoliday = "TRUE"
+                    GROUP BY s2.WeekDate),
+
+    	avrgNonHoli(sales, date) AS (SELECT SUM(s3.WeeklySales), s3.WeekDate
+                  FROM Sales s3, Holidays h
+                  WHERE s3.WeekDate = h.WeekDate AND h.Isholiday = "FALSE"
+                  GROUP BY s3.WeekDate)
+
+	SELECT COUNT(avrgNonHoli.DATE) AS "NumNonHolidays"
+	FROM (SELECT AVG(avrgHoli.sales) AS "TTT"
+      		FROM avrgHoli), avrgNonHoli
+	WHERE avrgNonHoli.sales > TTT;
+
+
+        ]]><!-- End problem 2, part (b). -->
+    </answer>
+    <answer number="2c">
+        <!-- Paste your solution to problem 2, part (c) below this line. --><![CDATA[
+	WITH temp1(type,sales,date) AS (SELECT ss1.Type AS "type", s1.WeeklySales AS "sales", s1.WeekDate
+                         FROM Sales s1, Stores ss1
+                         WHERE (s1.WeekDate LIKE "%-06-%" AND s1.Store = ss1.Store) OR 
+                                (s1.WeekDate LIKE "%-07-%" AND s1.Store = ss1.Store) OR 
+                                (s1.WeekDate LIKE "%-08-%" AND s1.Store = ss1.Store)
+                         )
+	SELECT temp1.type AS "type", SUM(temp1.sales) AS "TotalSales"
+	FROM temp1
+	GROUP BY temp1.type
+
+
+        ]]><!-- End problem 2, part (c). -->
+    </answer>
+    <answer number="2d">
+        <!-- Paste your solution to problem 2, part (d) below this line. --><![CDATA[
+	DROP TABLE IF EXISTS Result;
+	CREATE TABLE Result(
+    		Attribute_Name VARCHAR(20),
+    		Correlation_Sign INTEGER);
+
+	INSERT INTO Result(Attribute_Name) values ("Temperature"), ("FuelPrice"), ("CPI"), ("Unemployment");
+
+	DROP TABLE IF EXISTS Ans;
+	CREATE TABLE Ans(
+    		T INT,
+    		F INT,
+    		CPI INT,
+    		UNEMP INT
+	);
+
+	WITH sales_per_store(store, total_sale) AS 
+	(SELECT s.Store, SUM(s.WeeklySales)
+	FROM Sales s
+	GROUP BY s.Store, s.WeekDate),
+
+	total_mean(Smean, Tmean, Fmean, CPImean, Umean) AS 
+	(SELECT AVG(s.total_sale), AVG(t.Temperature), AVG(t.FuelPrice), AVG(t.CPI), AVG(t.UnemploymentRate)
+	FROM sales_per_store s, TemporalData t),
+
+	calculation(corr_T, corr_F, corr_CPI, corr_U) AS
+	(SELECT SUM((s.total_sale - tm.Smean) * (td.Temperature - tm.Tmean)), 
+ 	 SUM((s.total_sale - tm.Smean) * (td.FuelPrice - tm.Fmean)), 
+ 	 SUM((s.total_sale - tm.Smean) * (td.CPI - tm.CPImean)), 
+ 	 SUM((s.total_sale - tm.Smean) * (td.UnemploymentRate - tm.Umean))
+	FROM sales_per_store s, TemporalData td, total_mean tm)
+
+	INSERT INTO Ans
+	SELECT * FROM calculation;
+
+	UPDATE Result
+    		SET Correlation_Sign = (SELECT CASE WHEN T > 0 THEN 1 WHEN T < 0 THEN -1 ELSE 0 END FROM Ans)
+    		WHERE Attribute_Name = "Temperature";
+	UPDATE Result
+    		SET Correlation_Sign = (SELECT CASE WHEN F > 0 THEN 1 WHEN F < 0 THEN -1 ELSE 0 END FROM Ans) 
+    		WHERE Attribute_Name = "FuelPrice";
+	UPDATE Result
+    		SET Correlation_Sign = (SELECT CASE WHEN CPI > 0 THEN 1 WHEN CPI < 0 THEN -1 ELSE 0 END FROM Ans) 
+    		WHERE Attribute_Name = "CPI";
+	UPDATE Result
+    		SET Correlation_Sign = (SELECT CASE WHEN UNEMP > 0 THEN 1 WHEN UNEMP < 0 THEN -1 ELSE 0 END FROM Ans) 
+    		WHERE Attribute_Name = "Unemployment";
+
+	SELECT *
+	FROM Result;
+
+
+        ]]><!-- End problem 2, part (d). -->
+    </answer>
+    <!-- END PROBLEM 2 -->
+
+
+    <!-- BEGIN PROBLEM 3 -->
+    <answer number="3a">
+        <!-- Paste your solution to problem 3, part (a) below this line. --><![CDATA[
+	SELECT s.B AS "company", s.d AS "distance" FROM streets s WHERE s.A = "UW-Madison" AND s.d <= 10
+
+	UNION
+
+	SELECT s2.B, s1.d + s2.d
+	FROM streets s1 
+	INNER JOIN streets s2 
+      		ON s1.B = s2.A AND s1.direction = s2.direction 
+	WHERE 
+   	(s1.A = "UW-Madison" AND
+   	s2.B <> "UW-Madison") AND
+   	s1.d + s2.d <= 10
+
+	UNION
+
+	SELECT s3.B, s1.d+s2.d+s3.d
+	FROM streets s1
+	INNER JOIN streets s2 ON s1.B = s2.A AND s1.direction = s2.direction
+	INNER JOIN streets s3 ON s2.B = s3.A AND s2.direction = s3.direction
+	WHERE (s1.A = "UW-Madison" AND s2.B <> "UW-Madison" AND s3.B <> "UW-Madison") AND s1.d + s2.d + s3.d <= 10
+
+	ORDER BY company
+
+
+        ]]><!-- End problem 3, part (a). -->
+    </answer>
+    <answer number="3b">
+        <!-- Paste your solution to problem 3, part (b) below this line. --><![CDATA[
+	DROP VIEW IF EXISTS companies;
+	CREATE VIEW companies AS
+	SELECT B, d FROM streets s WHERE d <= 15 AND A = "UW-Madison"
+
+	UNION
+
+	SELECT s2.B, s1.d + s2.d
+	FROM streets s1, streets s2
+	WHERE s1.A = "UW-Madison" AND s1.B = s2.A AND s2.B <> "UW-Madison" AND s1.direction = s2.direction AND s1.d+s2.d <= 15
+
+	UNION
+
+	SELECT s3.B, s1.d + s2.d + s3.d
+	FROM streets s1, streets s2, streets s3
+	WHERE s1.A = "UW-Madison" AND s2.B <> "UW-Madison" AND s3.B <>"UW-Madison" AND s1.B = s2.A AND s2.B = s3.A AND s1.direction = s2.direction = s3.direction AND s1.d + 	s2.d + s3.d <= 15;
+
+	SELECT c1.B AS "company1", c2.B AS "company2", c1.d + c2.d AS "distance"
+	FROM companies c1, companies c2
+	WHERE c1.B <> c2.B AND c1.d + c2.d <=15;
+
+
+        ]]><!-- End problem 3, part (b). -->
+    </answer>
+    <answer number="3c">
+        <!-- Paste your solution to problem 3, part (c) below this line. --><![CDATA[
+	DELETE FROM streets WHERE streets.id IN(
+	SELECT s2.id
+	FROM streets s1, streets s2, streets s3
+	WHERE s1.direction = s2.direction AND s2.direction = s3.direction AND s1.B = s2.A AND s2.B = s3.A AND s3.B = s1.A
+	LIMIT 1);
+
+
+        ]]><!-- End problem 3, part (c). -->
+    </answer>
+    <answer number="3d">
+        <!-- Paste your solution to problem 3, part (d) below this line. --><![CDATA[
+	WITH RECURSIVE
+    		longest_path(initial,a,b,d) AS (
+        		SELECT s.A, s.A, s.B, s.d
+        		FROM streets s
+    		UNION
+        		SELECT l.initial, s.A, s.B, s.d + l.d
+        		FROM longest_path l, streets s
+        		WHERE l.B = s.A AND l.A <> s.B
+    		)
+	SELECT l.initial, l.b, l.d FROM longest_path l WHERE l.d = (SELECT MAX(l.d) FROM longest_path l)
+	LIMIT 1;
+
+
+        ]]><!-- End problem 3, part (d). -->
+    </answer>
+    <!-- END PROBLEM 3 -->
+
+
+</pset>

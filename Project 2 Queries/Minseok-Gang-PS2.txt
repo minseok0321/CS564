@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<pset>
+
+    <!--
+        CS 564, Spring 2021
+        PROBLEM SET 2 SUBMISSION TEMPLATE
+
+        Please copy and paste your SQL queries (and potentially Python and Latex code) 
+        into the appropriate spots below. 
+
+        When submitting SQL queries, please do not include the intitial 
+        %sql or %%sql IPython commands. Just include the SQL code.
+
+        DO NOT DELETE THE <![CDATA[ ... ]]> LINES IN EACH <answer> TAG!
+        Doing so will break the autograder. To avoid accidentally breaking
+        something, please leave all existing comments in this template
+        intact in your submission.
+    -->
+
+    <student>
+        <name>
+            <!-- Insert your full name on the line below. -->
+        Min Seok Gang    
+        </name>
+        <netid>
+            <!-- Insert your NetID (NOT your student ID number!) below. -->
+        gang3    
+        </netid>
+        <studentid>
+            <!-- Insert your student ID number below. -->
+        9074016560    
+        </studentid>
+    </student>
+
+
+    <!-- BEGIN PROBLEM 1 -->
+    <answer number="1a">
+        <!-- Paste your solution to problem 1, part (a) below this line. --><![CDATA[
+SELECT county, COUNT(county) AS "Count"
+FROM Hospital h
+GROUP BY h.county
+HAVING COUNT(*) > 1;
+
+
+        ]]><!-- End problem 1, part (a). -->
+    </answer>
+    <answer number="1b">
+        <!-- Paste your solution to problem 1, part (b) below this line. --><![CDATA[
+SELECT h.zip, h.city, h.state
+FROM Hospital h
+GROUP BY h.zip
+HAVING COUNT(DISTINCT h.state) > 1 OR COUNT(DISTINCT h.city) > 1;
+
+
+        ]]><!-- End problem 1, part (b). -->
+    </answer>
+    <!-- END PROBLEM 1 -->
+
+
+    <!-- BEGIN PROBLEM 2 -->
+    <answer number="2a">
+        <!-- Paste your solution to problem 2, part (a) below this line. --><![CDATA[
+answer = True
+explanation = "X+ of (A,B) includes A, B, C, E, D, and F that are all attributes of S."
+
+
+        ]]><!-- End problem 2, part (a). -->
+    </answer>
+    <answer number="2b">
+        <!-- Paste your solution to problem 2, part (b) below this line. --><![CDATA[
+answer = False
+explanation = "ABC UNION CDE UNION EFA is ABCDEF, the relation S, confirming the deposition. However, F+ does not cover some of the conditions for instance C->A,B,C (C->A,B) OR C->C,D,E (C->D,E)"
+
+
+        ]]><!-- End problem 2, part (b). -->
+    </answer>    
+    <answer number="2c">
+        <!-- Paste your solution to problem 2, part (c) below this line. --><![CDATA[
+answer = False
+explanation = "C->F is lost. A->C from ABC, A->E from EFA, C->D from CDE, but C->F cannot be preserved"
+
+
+        ]]><!-- End problem 2, part (c). -->
+    </answer>
+    <answer number="2d">
+        <!-- Paste your solution to problem 2, part (d) below this line. --><![CDATA[
+answer = True
+explanation = "Yes, A -> E + ((A -> C and C -> F) = A -> F) = A -> E and A -> F. A, E -> E, F and A -> A, E together generate A-> E, F"
+
+
+        ]]><!-- End problem 2, part (d). -->
+    </answer>
+    <answer number="2e">
+        <!-- Paste your solution to problem 2, part (e) below this line. --><![CDATA[
+answer = False
+explanation = "LHS of the FDs is not a superkey. For example, {A}->{C} is a non-trivial FD and A is not a superkey that it does not cover B."
+
+
+        ]]><!-- End problem 2, part (e). -->
+    </answer>
+    <!-- END PROBLEM 2 -->
+
+    <!-- BEGIN PROBLEM 3 -->
+    <answer number="3a">
+        <!-- Paste your solution to problem 3, part (a) below this line. --><![CDATA[
+$$\pi_{name}(\sigma_{year=2019}(Article \Join (\sigma_{affiliation="UW-Madison"}(Author\Join Person))))$$
+
+
+        ]]><!-- End problem 3, part (a). -->
+    </answer>
+    <answer number="3b">
+        <!-- Paste your solution to problem 3, part (b) below this line. --><![CDATA[
+$$\rho(Temp, \pi_{aid}(Author\Join(\sigma_{name="John Doe"}Person)))\\
+\pi_{name}(Temp\Join(\pi_{aid,name}(Author\Join(\sigma_{name<>"John Doe"}Person)))$$
+
+
+        ]]><!-- End problem 3, part (b). -->
+    </answer>
+    <answer number="3c">
+        <!-- Paste your solution to problem 3, part (c) below this line. --><![CDATA[
+$$\gamma_{COUNT(aid)}(\sigma_{2010<=year<=2020}(Article\Join(Author\Join(\sigma_{name="John\:Doe"}Person))))$$
+
+
+        ]]><!-- End problem 3, part (c). -->
+    </answer>
+    <answer number="3d">
+    <!-- Paste your solution to problem 3, part (d) below this line. --><![CDATA[
+$$\rho(conf, \sigma_{name=SIGMOD}Conference)\\
+\rho(year, \sigma_{year=2018 \:\wedge\: year<>2019}Article)\\
+\pi_{name}(((\pi_{aid}(conf \Join year)) \Join Author) \Join Person)$$
+
+        ]]><!-- End problem 3, part (d). -->
+    </answer>
+    <!-- END PROBLEM 3 -->
+
+</pset>
